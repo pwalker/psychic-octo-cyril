@@ -1,25 +1,44 @@
 var DeckView = Backbone.View.extend({
 
-    // bind it to a containing element
-    id: "deck-view",
-    tagName: "div",
+    events: {
+        "dblclick li": "dblClick"
+    },
 
     initialize: function (){
         console.log("DeckView initialized.");
 
-        Deck.add(new Partition);
+        // this is a bit of a cop-out, using the catch all.
+        this.listenTo(this.collection, 'all', this.render);
+
+        // load the saved deck
+        //Deck.fetch();
     },
 
     render: function(){
-        var html = "rendered";
+        // prepare the space
+        this.clear();
 
-        // render each of the partitions
-        Deck.each(function () {
-            html = html + "another partition<br>";
-        });
+        this.$el.append($("render"));
 
-        // this.$el is given to us, from the id and tagName we specified earlier
-        this.$el.html(html);
+        // render all the partitions
+        if (typeof this.collection !== "undefined"){
+            this.collection.each(function(card){
+                // render all the cards
+                var view = new CardView({model: card});
+                this.$el.append(view.render().el);
+            }, this);
+        }
+
+        // I don't think we need to do much here.
         return this;
+    },
+
+    clear: function(){
+        this.$el.html("");
+    },
+
+    dblClick: function (model){
+        console.log(event);
     }
+
 });

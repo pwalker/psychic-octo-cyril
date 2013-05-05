@@ -1,15 +1,15 @@
 var Card = Backbone.Model.extend({
 
     initialize: function() {
-        console.log("Card initialized");
-
-        this.on("change:city", function(model) {
-            console.log("City name to: " + model.get("city"));
+        // on update, resort
+        this.on('change', function(){
+            Deck.sort();
         });
     },
 
     defaults: {
-        city: "Some City"
+        city: "Some City",
+        partition: 0
     }
 
 });
