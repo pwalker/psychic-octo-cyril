@@ -1,9 +1,5 @@
 var DeckView = Backbone.View.extend({
 
-    events: {
-        "dblclick li": "dblClick"
-    },
-
     initialize: function (){
         console.log("DeckView initialized.");
 
@@ -35,10 +31,6 @@ var DeckView = Backbone.View.extend({
 
     clear: function(){
         this.$el.html("");
-    },
-
-    dblClick: function (model){
-        console.log(event);
     }
 
 });
