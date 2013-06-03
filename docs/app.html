@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+  <title>app.js</title>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <meta name="viewport" content="width=device-width, target-densitydpi=160dpi, initial-scale=1.0; maximum-scale=1.0; user-scalable=0;">
+  <link rel="stylesheet" media="all" href="docco.css" />
+</head>
+<body>
+  <div id="container">
+    <div id="background"></div>
+    
+    <ul class="sections">
+        
+          <li id="title">
+              <div class="annotation">
+                  <h1>app.js</h1>
+              </div>
+          </li>
+        
+        
+        
+        <li id="section-1">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-1">&#182;</a>
+              </div>
+              
+            </div>
+            
+        </li>
+        
+        
+        <li id="section-2">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-2">&#182;</a>
+              </div>
+              <p>The purpose of this app is create a <em>perfect memory</em> for a deck of cards in
+the boardgame <em>Pandemic</em>.  This is necessary because it is really difficult
+to win the game!  Also, in the spirit of the game, I think that trying to
+solve the issues facing the players with their skills (i.e. l33t computer
+programming) is probably OK.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>$(<span class="keyword">function</span>(){</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-3">
+            <div class="annotation">
+              
+              <div class="pilwrap for-h2">
+                <a class="pilcrow" href="#section-3">&#182;</a>
+              </div>
+              <h2>The Card Model</h2>
+
+            </div>
+            
+        </li>
+        
+        
+        <li id="section-4">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-4">&#182;</a>
+              </div>
+              
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    <span class="keyword">var</span> Card = Backbone.Model.extend({
+
+        initialize: <span class="keyword">function</span>() {
+        },</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-5">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-5">&#182;</a>
+              </div>
+              <p>Each card will represent a city.  There is nothing else on a card but
+a city name.  We also want to keep track of what layer of the deck
+we <em>think</em> the card is in.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        defaults: {
+            city: <span class="string">"Some City"</span>,
+            layer: <span class="number">0</span>
+        }
+
+    });</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-6">
+            <div class="annotation">
+              
+              <div class="pilwrap for-h2">
+                <a class="pilcrow" href="#section-6">&#182;</a>
+              </div>
+              <h2>A Collection of Cards</h2>
+
+            </div>
+            
+        </li>
+        
+        
+        <li id="section-7">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-7">&#182;</a>
+              </div>
+              
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    <span class="keyword">var</span> Pile = Backbone.Collection.extend({</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-8">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-8">&#182;</a>
+              </div>
+              <p>Tell the collection what model we are using</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        model: Card,</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-9">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-9">&#182;</a>
+              </div>
+              <p>This is specific to the backbone.localStorage.js.
+TODO how would you specify a real backend?</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        localStorage: <span class="keyword">new</span> Backbone.LocalStorage(<span class="string">"stacks"</span>),
+
+        initialize: <span class="keyword">function</span>(){</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-10">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-10">&#182;</a>
+              </div>
+              <p>Hooray for debugging</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>            console.log(<span class="string">"Deck initialized"</span>);
+        },</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-11">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-11">&#182;</a>
+              </div>
+              <p>Tell Backbone.Collection what to do to sort the collection.
+This could be a function, comparator or compareTo, but we have here
+an attribute on the model.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        comparator: <span class="string">"layer"</span>,
+
+        shuffle: <span class="function"><span class="keyword">function</span> <span class="params">()</span>{</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-12">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-12">&#182;</a>
+              </div>
+              <p>put all cards in layer 0 into layer 1</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        }
+
+    });</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-13">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-13">&#182;</a>
+              </div>
+              <p>Create the initial piles.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    <span class="keyword">var</span> Draw = <span class="keyword">new</span> Pile();
+    <span class="keyword">var</span> FaceUp = <span class="keyword">new</span> Pile();</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-14">
+            <div class="annotation">
+              
+              <div class="pilwrap for-h2">
+                <a class="pilcrow" href="#section-14">&#182;</a>
+              </div>
+              <h2>Display a Card</h2>
+
+            </div>
+            
+        </li>
+        
+        
+        <li id="section-15">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-15">&#182;</a>
+              </div>
+              
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    <span class="keyword">var</span> CardView = Backbone.View.extend({
+
+        tagName: <span class="string">"li"</span>,
+
+        events: {
+            <span class="string">"dblclick"</span>: <span class="string">"draw"</span>
+        },
+
+        initialize: <span class="function"><span class="keyword">function</span> <span class="params">()</span>{</span>
+            <span class="keyword">this</span>.listenTo(<span class="keyword">this</span>.model, <span class="string">'change'</span>, <span class="keyword">this</span>.render);
+            <span class="keyword">this</span>.listenTo(<span class="keyword">this</span>.model, <span class="string">'destroy'</span>, <span class="keyword">this</span>.remove);</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-16">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-16">&#182;</a>
+              </div>
+              <p>this is in the initialize because we need the DOM.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>            <span class="keyword">this</span>.template = _.template($(<span class="string">"#card-template"</span>).html());
+        },
+
+        render: <span class="function"><span class="keyword">function</span> <span class="params">()</span> {</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-17">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-17">&#182;</a>
+              </div>
+              <p>get JSON of attributes, render template, put in $el</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>            <span class="keyword">this</span>.$el.html(<span class="keyword">this</span>.template(<span class="keyword">this</span>.model.toJSON()));
+            <span class="keyword">return</span> <span class="keyword">this</span>;
+        },</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-18">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-18">&#182;</a>
+              </div>
+              <p>maybe move the card to the faceup pile</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        draw: <span class="function"><span class="keyword">function</span> <span class="params">(event)</span>{</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-19">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-19">&#182;</a>
+              </div>
+              <p>Debugging</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>            console.log(<span class="string">'draw '</span>+<span class="keyword">this</span>.model.get(<span class="string">'city'</span>));</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-20">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-20">&#182;</a>
+              </div>
+              <p>Lets just rethrow this event, but pass along the model.  Hopefully
+something with knowledge of the two decks will hear this, and
+move the card accordingly.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>            <span class="keyword">this</span>.model.trigger(<span class="string">'draw'</span>, <span class="keyword">this</span>.model);
+        }
+
+    });</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-21">
+            <div class="annotation">
+              
+              <div class="pilwrap for-h2">
+                <a class="pilcrow" href="#section-21">&#182;</a>
+              </div>
+              <h2>Display a collection of cards</h2>
+
+            </div>
+            
+        </li>
+        
+        
+        <li id="section-22">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-22">&#182;</a>
+              </div>
+              
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    <span class="keyword">var</span> DeckView = Backbone.View.extend({
+
+        initialize: <span class="function"><span class="keyword">function</span> <span class="params">()</span>{</span>
+            console.log(<span class="string">"DeckView initialized."</span>);</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-23">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-23">&#182;</a>
+              </div>
+              <p>this is a bit of a cop-out, using the catch all.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>            <span class="keyword">this</span>.listenTo(<span class="keyword">this</span>.collection, <span class="string">'all'</span>, <span class="keyword">this</span>.render);</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-24">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-24">&#182;</a>
+              </div>
+              <p>We might hear from a card in this collection that it has been drawn!
+if thats true, this is more appropriate place to deal with it.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>            <span class="keyword">this</span>.listenTo(<span class="keyword">this</span>.collection, <span class="string">'draw'</span>, <span class="keyword">this</span>.drawCard);</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-25">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-25">&#182;</a>
+              </div>
+              <p>load the saved deck
+Deck.fetch();</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        },
+
+        render: <span class="keyword">function</span>(){</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-26">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-26">&#182;</a>
+              </div>
+              <p>prepare the space</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>            <span class="keyword">this</span>.clear();
+
+            <span class="keyword">this</span>.$el.append($(<span class="string">"render"</span>));</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-27">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-27">&#182;</a>
+              </div>
+              <p>render all the layers</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>            <span class="keyword">if</span> (<span class="keyword">typeof</span> <span class="keyword">this</span>.collection !== <span class="string">"undefined"</span>){
+                <span class="keyword">this</span>.collection.each(<span class="keyword">function</span>(card){</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-28">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-28">&#182;</a>
+              </div>
+              <p>render all the cards</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>                    <span class="keyword">var</span> view = <span class="keyword">new</span> CardView({model: card});
+                    <span class="keyword">this</span>.$el.append(view.render().el);
+                }, <span class="keyword">this</span>);
+            }</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-29">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-29">&#182;</a>
+              </div>
+              <p>I don&#39;t think we need to do much here.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>            <span class="keyword">return</span> <span class="keyword">this</span>;
+        },</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-30">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-30">&#182;</a>
+              </div>
+              <p>Maybe move the given card from the Draw pile to the FaceUp pile.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        drawCard: <span class="keyword">function</span>(card){</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-31">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-31">&#182;</a>
+              </div>
+              <p>&quot;Drawing&quot; only goes one way, from the Draw pile to the FaceUp pile</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>            <span class="keyword">if</span> (Draw.contains(card)){</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-32">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-32">&#182;</a>
+              </div>
+              <p>Follow along in the console</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>                console.log(<span class="string">'drawing '</span>+card.get(<span class="string">"city"</span>));</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-33">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-33">&#182;</a>
+              </div>
+              <p>The Layer isn&#39;t important in the FaceUp pile.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>                card.set({<span class="string">"layer"</span>: <span class="number">0</span>});</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-34">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-34">&#182;</a>
+              </div>
+              <p>Perform the move.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>                FaceUp.add(card);
+                Draw.remove(card);
+            }
+        },
+
+        clear: <span class="keyword">function</span>(){
+            <span class="keyword">this</span>.$el.html(<span class="string">""</span>);
+        }
+
+    });</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-35">
+            <div class="annotation">
+              
+              <div class="pilwrap for-h2">
+                <a class="pilcrow" href="#section-35">&#182;</a>
+              </div>
+              <h2>Kick it off</h2>
+
+            </div>
+            
+        </li>
+        
+        
+        <li id="section-36">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-36">&#182;</a>
+              </div>
+              
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    <span class="keyword">var</span> app = {};
+    app.DrawView = <span class="keyword">new</span> DeckView({
+        el: $(<span class="string">"#draw-pile"</span>),
+        collection: Draw
+    });
+    app.FaceUpView = <span class="keyword">new</span> DeckView({
+        el: $(<span class="string">"#faceup-pile"</span>),
+        collection: FaceUp
+    });</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-37">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-37">&#182;</a>
+              </div>
+              <p>TODO move this click and callback into an AppView!</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    $(<span class="string">"#shuffle-faceup"</span>).click(<span class="keyword">function</span>(){</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-38">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-38">&#182;</a>
+              </div>
+              <p>increase all layer #&#39;s in drawpile</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        Draw.each(<span class="keyword">function</span>(model){
+            model.set({ <span class="string">"layer"</span>: model.get(<span class="string">"layer"</span>)+<span class="number">1</span> });
+        });</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-39">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-39">&#182;</a>
+              </div>
+              <p>move everything in faceup to draw</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        <span class="keyword">while</span> (FaceUp.size() &gt; <span class="number">0</span>){
+            Draw.add(FaceUp.pop());
+        }
+        
+    });</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-40">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-40">&#182;</a>
+              </div>
+              <p>create some dummy cards!</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    <span class="keyword">var</span> cities = [<span class="string">"Los Angeles"</span>, <span class="string">"San Francisco"</span>, <span class="string">"Shanghai"</span>, <span class="string">"Beijing"</span>, <span class="string">"Atlanta"</span>, <span class="string">"New York"</span>, <span class="string">"Chicago"</span>, <span class="string">"London"</span>, <span class="string">"Paris"</span>, <span class="string">"Sydney"</span>, <span class="string">"Tehran"</span>, <span class="string">"Bolgota"</span>, <span class="string">"Hong Kong"</span>, <span class="string">"Tokyo"</span>, <span class="string">"Lima"</span>, <span class="string">"Johannesburg"</span>, <span class="string">"Cairo"</span>, <span class="string">"St. Petersburg"</span>];
+    <span class="keyword">for</span> (<span class="keyword">var</span> i=<span class="number">0</span>; i &lt; cities.length; i++){
+        <span class="keyword">var</span> newCard = <span class="keyword">new</span> Card({<span class="string">"city"</span>: cities[i]});
+        Draw.add(newCard);
+    }
+
+});</pre></div></div>
+            
+        </li>
+        
+    </ul>
+  </div>
+</body>
+</html>
