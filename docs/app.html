@@ -96,9 +96,7 @@ we <em>think</em> the card is in.</p>
             
             <div class="content"><div class='highlight'><pre>        defaults: {
             city: <span class="string">"Some City"</span>,
-            color: <span class="string">"red"</span>,
-            layer: <span class="number">0</span>,
-            faceup: <span class="literal">false</span>
+            layer: <span class="number">1</span>
         }
 
     });</pre></div></div>
@@ -156,13 +154,11 @@ we <em>think</em> the card is in.</p>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-9">&#182;</a>
               </div>
-              <p>Hooray for debugging</p>
+              <p>if any element of this collection changes its level, we must resort!</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>            console.log(<span class="string">"Deck initialized"</span>);
-
-            <span class="keyword">this</span>.listenTo(<span class="keyword">this</span>, <span class="string">"shuffle"</span>, <span class="keyword">this</span>.shuffle);
+            <div class="content"><div class='highlight'><pre>            <span class="keyword">this</span>.on(<span class="string">'change:layer'</span>, <span class="keyword">this</span>.sort, <span class="keyword">this</span>);
         },</pre></div></div>
             
         </li>
@@ -194,11 +190,14 @@ an attribute on the model.</p>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-11">&#182;</a>
               </div>
-              <p>To make this explicit, lets prepare the new attributes</p>
+              <p>update the attributes, and since we are iterating over the
+entire collection, lets wait to trigger an event until we
+are finished.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>                <span class="keyword">var</span> newAttrs = {</pre></div></div>
+            <div class="content"><div class='highlight'><pre>                card.set({<span class="string">"layer"</span>: card.get(<span class="string">"layer"</span>)+<span class="number">1</span> }, {silent: <span class="literal">true</span>});
+            }, <span class="keyword">this</span>);</pre></div></div>
             
         </li>
         
@@ -208,55 +207,6 @@ an attribute on the model.</p>
               
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-12">&#182;</a>
-              </div>
-              <p>the layer number gets incremented unless we were faceup</p>
-
-            </div>
-            
-            <div class="content"><div class='highlight'><pre>                    <span class="string">"layer"</span> : card.get(<span class="string">"faceup"</span>) === <span class="literal">true</span> ? <span class="number">0</span> : card.get(<span class="string">"layer"</span>) + <span class="number">1</span>,</pre></div></div>
-            
-        </li>
-        
-        
-        <li id="section-13">
-            <div class="annotation">
-              
-              <div class="pilwrap ">
-                <a class="pilcrow" href="#section-13">&#182;</a>
-              </div>
-              <p>In shuffling, everycard in the infect piles gets turned facedown</p>
-
-            </div>
-            
-            <div class="content"><div class='highlight'><pre>                    <span class="string">"faceup"</span> : <span class="literal">false</span>
-                };</pre></div></div>
-            
-        </li>
-        
-        
-        <li id="section-14">
-            <div class="annotation">
-              
-              <div class="pilwrap ">
-                <a class="pilcrow" href="#section-14">&#182;</a>
-              </div>
-              <p>update the attributes, and since we are iterating over the
-entire collection, lets wait to trigger an event until we
-are finished.</p>
-
-            </div>
-            
-            <div class="content"><div class='highlight'><pre>                card.set(newAttrs, {silent: <span class="literal">true</span>});
-            }, <span class="keyword">this</span>);</pre></div></div>
-            
-        </li>
-        
-        
-        <li id="section-15">
-            <div class="annotation">
-              
-              <div class="pilwrap ">
-                <a class="pilcrow" href="#section-15">&#182;</a>
               </div>
               <p>Our new layer and faceup values might have changed the order, let&#39;s
 ensure its correct.</p>
@@ -268,11 +218,11 @@ ensure its correct.</p>
         </li>
         
         
-        <li id="section-16">
+        <li id="section-13">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-16">&#182;</a>
+                <a class="pilcrow" href="#section-13">&#182;</a>
               </div>
               <p>Since we did some bulk work, and suppressed all events when updating,
 we should still trigger something.  Luckily for us, the sort() method
@@ -280,35 +230,37 @@ fires off a &quot;sort&quot; event, which gets caught in the CardView&#39;s
 &quot;all&quot; handler.</p>
 <p> Otherwise a &quot;change&quot; even should suffice
 this.trigger(&quot;change&quot;);</p>
+<p>in case anyone cares</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>        }
+            <div class="content"><div class='highlight'><pre>            <span class="keyword">this</span>.trigger(<span class="string">"shuffle"</span>);
+        }
     });</pre></div></div>
             
         </li>
         
         
-        <li id="section-17">
+        <li id="section-14">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-17">&#182;</a>
+                <a class="pilcrow" href="#section-14">&#182;</a>
               </div>
               <p>Create the initial piles.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    <span class="keyword">var</span> Draw = <span class="keyword">new</span> Cards();</pre></div></div>
+            <div class="content"><div class='highlight'><pre>    <span class="keyword">var</span> Pile = <span class="keyword">new</span> Cards();</pre></div></div>
             
         </li>
         
         
-        <li id="section-18">
+        <li id="section-15">
             <div class="annotation">
               
               <div class="pilwrap for-h2">
-                <a class="pilcrow" href="#section-18">&#182;</a>
+                <a class="pilcrow" href="#section-15">&#182;</a>
               </div>
               <h2>Display a Card</h2>
 
@@ -317,21 +269,21 @@ this.trigger(&quot;change&quot;);</p>
         </li>
         
         
-        <li id="section-19">
+        <li id="section-16">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-19">&#182;</a>
+                <a class="pilcrow" href="#section-16">&#182;</a>
               </div>
               
             </div>
             
             <div class="content"><div class='highlight'><pre>    <span class="keyword">var</span> CardView = Backbone.View.extend({
 
-        tagName: <span class="string">"li"</span>,
+        tagName: <span class="string">"tr"</span>,
 
         events: {
-            <span class="string">"dblclick"</span>: <span class="string">"draw"</span>
+            <span class="string">"click .draw"</span>: <span class="string">"draw"</span>
         },
 
         initialize: <span class="function"><span class="keyword">function</span> <span class="params">()</span>{</span>
@@ -341,11 +293,11 @@ this.trigger(&quot;change&quot;);</p>
         </li>
         
         
-        <li id="section-20">
+        <li id="section-17">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-20">&#182;</a>
+                <a class="pilcrow" href="#section-17">&#182;</a>
               </div>
               <p>this is in the initialize because we need the DOM.</p>
 
@@ -359,11 +311,11 @@ this.trigger(&quot;change&quot;);</p>
         </li>
         
         
-        <li id="section-21">
+        <li id="section-18">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-21">&#182;</a>
+                <a class="pilcrow" href="#section-18">&#182;</a>
               </div>
               <p>get JSON of attributes, render template, put in $el</p>
 
@@ -376,11 +328,11 @@ this.trigger(&quot;change&quot;);</p>
         </li>
         
         
-        <li id="section-22">
+        <li id="section-19">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-22">&#182;</a>
+                <a class="pilcrow" href="#section-19">&#182;</a>
               </div>
               <p>maybe move the card to the faceup pile</p>
 
@@ -391,41 +343,26 @@ this.trigger(&quot;change&quot;);</p>
         </li>
         
         
-        <li id="section-23">
+        <li id="section-20">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-23">&#182;</a>
-              </div>
-              <p>Debugging</p>
-
-            </div>
-            
-            <div class="content"><div class='highlight'><pre>            console.log(<span class="string">'draw '</span>+<span class="keyword">this</span>.model.get(<span class="string">'city'</span>));</pre></div></div>
-            
-        </li>
-        
-        
-        <li id="section-24">
-            <div class="annotation">
-              
-              <div class="pilwrap ">
-                <a class="pilcrow" href="#section-24">&#182;</a>
+                <a class="pilcrow" href="#section-20">&#182;</a>
               </div>
               <p>The card becomes visible, and its level reset</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>            <span class="keyword">this</span>.model.set({<span class="string">"faceup"</span>: <span class="literal">true</span>, <span class="string">"level"</span>: <span class="number">0</span>});</pre></div></div>
+            <div class="content"><div class='highlight'><pre>            <span class="keyword">this</span>.model.set({<span class="string">"layer"</span>: <span class="number">0</span>});</pre></div></div>
             
         </li>
         
         
-        <li id="section-25">
+        <li id="section-21">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-25">&#182;</a>
+                <a class="pilcrow" href="#section-21">&#182;</a>
               </div>
               <p>Lets just rethrow this event, but pass along the model.  Hopefully
 something with knowledge of the two decks will hear this, and
@@ -441,11 +378,11 @@ refresh the display accordingly.</p>
         </li>
         
         
-        <li id="section-26">
+        <li id="section-22">
             <div class="annotation">
               
               <div class="pilwrap for-h2">
-                <a class="pilcrow" href="#section-26">&#182;</a>
+                <a class="pilcrow" href="#section-22">&#182;</a>
               </div>
               <h2>Display a collection of cards</h2>
 
@@ -454,52 +391,34 @@ refresh the display accordingly.</p>
         </li>
         
         
-        <li id="section-27">
+        <li id="section-23">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-27">&#182;</a>
+                <a class="pilcrow" href="#section-23">&#182;</a>
               </div>
               
             </div>
             
             <div class="content"><div class='highlight'><pre>    <span class="keyword">var</span> DeckView = Backbone.View.extend({
 
-        initialize: <span class="function"><span class="keyword">function</span> <span class="params">(opt)</span>{</span>
-            console.log(<span class="string">"DeckView initialized."</span>);
-
-            <span class="keyword">this</span>.where = opt.where;</pre></div></div>
+        initialize: <span class="function"><span class="keyword">function</span> <span class="params">(opt)</span>{</span></pre></div></div>
             
         </li>
         
         
-        <li id="section-28">
+        <li id="section-24">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-28">&#182;</a>
+                <a class="pilcrow" href="#section-24">&#182;</a>
               </div>
-              <p>this is a bit of a cop-out, using the catch all.</p>
+              <p>A deckview is invalidated if the cards are sorted, or if one is drawn</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>            <span class="keyword">this</span>.listenTo(<span class="keyword">this</span>.collection, <span class="string">'all'</span>, <span class="keyword">this</span>.render);</pre></div></div>
-            
-        </li>
-        
-        
-        <li id="section-29">
-            <div class="annotation">
-              
-              <div class="pilwrap ">
-                <a class="pilcrow" href="#section-29">&#182;</a>
-              </div>
-              <p>We might hear from a card in this collection that it has been drawn!
-if thats true, this is more appropriate place to deal with it.</p>
-
-            </div>
-            
-            <div class="content"><div class='highlight'><pre>            <span class="keyword">this</span>.listenTo(<span class="keyword">this</span>.collection, <span class="string">'draw'</span>, <span class="keyword">this</span>.drawCard);
+            <div class="content"><div class='highlight'><pre>            <span class="keyword">this</span>.listenTo(<span class="keyword">this</span>.collection, <span class="string">'sort'</span>, <span class="keyword">this</span>.render);
+            <span class="keyword">this</span>.listenTo(<span class="keyword">this</span>.collection, <span class="string">'draw'</span>, <span class="keyword">this</span>.render);
         },
 
         render: <span class="keyword">function</span>(){</pre></div></div>
@@ -507,11 +426,11 @@ if thats true, this is more appropriate place to deal with it.</p>
         </li>
         
         
-        <li id="section-30">
+        <li id="section-25">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-30">&#182;</a>
+                <a class="pilcrow" href="#section-25">&#182;</a>
               </div>
               <p>prepare the space</p>
 
@@ -524,19 +443,110 @@ if thats true, this is more appropriate place to deal with it.</p>
         </li>
         
         
-        <li id="section-31">
+        <li id="section-26">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-31">&#182;</a>
+                <a class="pilcrow" href="#section-26">&#182;</a>
               </div>
               <p>render all the layers</p>
 
             </div>
             
             <div class="content"><div class='highlight'><pre>            <span class="keyword">if</span> (<span class="keyword">typeof</span> <span class="keyword">this</span>.collection !== <span class="string">"undefined"</span>){
-                <span class="keyword">var</span> models = <span class="keyword">this</span>.collection.where(<span class="keyword">this</span>.where);
-                <span class="keyword">for</span> (<span class="keyword">var</span> i=<span class="number">0</span>; i &lt; models.length; i++){</pre></div></div>
+                <span class="keyword">this</span>.collection.each(<span class="keyword">function</span>(card){</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-27">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-27">&#182;</a>
+              </div>
+              <p>render all the cards</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>                    <span class="keyword">var</span> view = <span class="keyword">new</span> CardView({model: card});
+                    <span class="keyword">this</span>.$el.append(view.render().el);
+                }, <span class="keyword">this</span>);
+            }
+
+            <span class="keyword">return</span> <span class="keyword">this</span>;
+        },
+
+        clear: <span class="keyword">function</span>(){
+            <span class="keyword">this</span>.$el.html(<span class="string">""</span>);
+        }
+
+    });</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-28">
+            <div class="annotation">
+              
+              <div class="pilwrap for-h2">
+                <a class="pilcrow" href="#section-28">&#182;</a>
+              </div>
+              <h2>The singular app view</h2>
+
+            </div>
+            
+        </li>
+        
+        
+        <li id="section-29">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-29">&#182;</a>
+              </div>
+              
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    <span class="keyword">var</span> AppView = Backbone.View.extend({
+        el: $(<span class="string">"#deck-memory"</span>),</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-30">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-30">&#182;</a>
+              </div>
+              <p>link up the shuffle event</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        events: {
+            <span class="string">"click .shuffle"</span>: <span class="string">"shuffle"</span>
+        },</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-31">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-31">&#182;</a>
+              </div>
+              <p>Create the view of the deck</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        initialize: <span class="function"><span class="keyword">function</span> <span class="params">()</span>{</span>
+            <span class="keyword">var</span> DeckTable = <span class="keyword">new</span> DeckView({
+                el: $(<span class="string">"#deck"</span>),
+                collection: Pile
+            });
+        },</pre></div></div>
             
         </li>
         
@@ -547,14 +557,15 @@ if thats true, this is more appropriate place to deal with it.</p>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-32">&#182;</a>
               </div>
-              <p>render all the cards</p>
+              <p>Pass this along to the Pile</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>                    <span class="keyword">var</span> view = <span class="keyword">new</span> CardView({model: models[i]});
-                    <span class="keyword">this</span>.$el.append(view.render().el);
-                }
-            }</pre></div></div>
+            <div class="content"><div class='highlight'><pre>        shuffle: <span class="function"><span class="keyword">function</span> <span class="params">()</span> {</span>
+            Pile.shuffle();
+        }
+
+    });</pre></div></div>
             
         </li>
         
@@ -562,15 +573,12 @@ if thats true, this is more appropriate place to deal with it.</p>
         <li id="section-33">
             <div class="annotation">
               
-              <div class="pilwrap ">
+              <div class="pilwrap for-h2">
                 <a class="pilcrow" href="#section-33">&#182;</a>
               </div>
-              <p>I don&#39;t think we need to do much here.</p>
+              <h2>Kick it off</h2>
 
             </div>
-            
-            <div class="content"><div class='highlight'><pre>            <span class="keyword">return</span> <span class="keyword">this</span>;
-        },</pre></div></div>
             
         </li>
         
@@ -581,11 +589,10 @@ if thats true, this is more appropriate place to deal with it.</p>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-34">&#182;</a>
               </div>
-              <p>Maybe move the given card from the Draw pile to the FaceUp pile.</p>
-
+              
             </div>
             
-            <div class="content"><div class='highlight'><pre>        drawCard: <span class="keyword">function</span>(card){</pre></div></div>
+            <div class="content"><div class='highlight'><pre>    <span class="keyword">var</span> DeckMemory = <span class="keyword">new</span> AppView();</pre></div></div>
             
         </li>
         
@@ -596,98 +603,6 @@ if thats true, this is more appropriate place to deal with it.</p>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-35">&#182;</a>
               </div>
-              <p>If a card was drawn, we should refresh the display!</p>
-
-            </div>
-            
-            <div class="content"><div class='highlight'><pre>            <span class="keyword">this</span>.render();
-        },
-
-        clear: <span class="keyword">function</span>(){
-            <span class="keyword">this</span>.$el.html(<span class="string">""</span>);
-        },
-
-        where: {}
-
-    });</pre></div></div>
-            
-        </li>
-        
-        
-        <li id="section-36">
-            <div class="annotation">
-              
-              <div class="pilwrap for-h2">
-                <a class="pilcrow" href="#section-36">&#182;</a>
-              </div>
-              <h2>Kick it off</h2>
-
-            </div>
-            
-        </li>
-        
-        
-        <li id="section-37">
-            <div class="annotation">
-              
-              <div class="pilwrap ">
-                <a class="pilcrow" href="#section-37">&#182;</a>
-              </div>
-              
-            </div>
-            
-            <div class="content"><div class='highlight'><pre>    <span class="keyword">var</span> app = {};
-    app.DrawView = <span class="keyword">new</span> DeckView({
-        el: $(<span class="string">"#draw-pile"</span>),
-        collection: Draw,
-        where: {<span class="string">"faceup"</span>: <span class="literal">false</span>}
-    });
-    app.FaceUpView = <span class="keyword">new</span> DeckView({
-        el: $(<span class="string">"#faceup-pile"</span>),
-        collection: Draw,
-        where: {<span class="string">"faceup"</span>: <span class="literal">true</span>}
-    });</pre></div></div>
-            
-        </li>
-        
-        
-        <li id="section-38">
-            <div class="annotation">
-              
-              <div class="pilwrap ">
-                <a class="pilcrow" href="#section-38">&#182;</a>
-              </div>
-              <p>TODO move this click and callback into an AppView!</p>
-
-            </div>
-            
-            <div class="content"><div class='highlight'><pre>    $(<span class="string">"#shuffle-faceup"</span>).click(<span class="keyword">function</span>(){</pre></div></div>
-            
-        </li>
-        
-        
-        <li id="section-39">
-            <div class="annotation">
-              
-              <div class="pilwrap ">
-                <a class="pilcrow" href="#section-39">&#182;</a>
-              </div>
-              <p>increase all layer #&#39;s in drawpile</p>
-
-            </div>
-            
-            <div class="content"><div class='highlight'><pre>        Draw.trigger(<span class="string">"shuffle"</span>);
-    });</pre></div></div>
-            
-        </li>
-        
-        
-        <li id="section-40">
-            <div class="annotation">
-              
-              <div class="pilwrap ">
-                <a class="pilcrow" href="#section-40">&#182;</a>
-              </div>
               <p>create some dummy cards!</p>
 
             </div>
@@ -695,7 +610,7 @@ if thats true, this is more appropriate place to deal with it.</p>
             <div class="content"><div class='highlight'><pre>    <span class="keyword">var</span> cities = [<span class="string">"Los Angeles"</span>, <span class="string">"San Francisco"</span>, <span class="string">"Shanghai"</span>, <span class="string">"Beijing"</span>, <span class="string">"Atlanta"</span>, <span class="string">"New York"</span>, <span class="string">"Chicago"</span>, <span class="string">"London"</span>, <span class="string">"Paris"</span>, <span class="string">"Sydney"</span>, <span class="string">"Tehran"</span>, <span class="string">"Bolgota"</span>, <span class="string">"Hong Kong"</span>, <span class="string">"Tokyo"</span>, <span class="string">"Lima"</span>, <span class="string">"Johannesburg"</span>, <span class="string">"Cairo"</span>, <span class="string">"St. Petersburg"</span>];
     <span class="keyword">for</span> (<span class="keyword">var</span> i=<span class="number">0</span>; i &lt; cities.length; i++){
         <span class="keyword">var</span> newCard = <span class="keyword">new</span> Card({<span class="string">"city"</span>: cities[i]});
-        Draw.add(newCard);
+        Pile.add(newCard);
     }
 
 });</pre></div></div>
