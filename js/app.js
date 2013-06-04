@@ -139,13 +139,17 @@ $(function(){
 
     });
 
+    // The singular app view
+    // ---------------------
     var AppView = Backbone.View.extend({
         el: $("#deck-memory"),
 
+        // link up the shuffle event
         events: {
             "click .shuffle": "shuffle"
         },
 
+        // Create the view of the deck
         initialize: function (){
             var DeckTable = new DeckView({
                 el: $("#deck"),
@@ -153,8 +157,8 @@ $(function(){
             });
         },
 
+        // Pass this along to the Pile
         shuffle: function () {
-            console.log("shuffling");
             Pile.shuffle();
         }
 
