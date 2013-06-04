@@ -26,14 +26,14 @@
     <div class="row">
         <div class="span6">
             <h2>Discard Pile</h2>
-            <ul class="unstyled" id="faceup-pile">
-            </ul>
+            <table class="table table-striped" id="faceup-pile">
+            </table>
         </div>
 
         <div class="span6">
             <h2>Draw Pile</h2>
-            <ul class="unstyled" id="draw-pile">
-            </ul>
+            <table class="table table-striped" id="draw-pile">
+            </table>
         </div>
 
         <div class="span12">
@@ -47,7 +47,13 @@
 </div>
 
 <script type="text/template" id="card-template">
-<%= layer %> - <%= city %>
+<td>
+    <%= layer %> - <%= city %>
+</td>
+<td>
+    <a href="#" class="draw btn btn-mini btn-primary">Draw</a>
+    <a href="#" class="top btn btn-mini">Top</a>
+</td>
 </script>
 
 </body>

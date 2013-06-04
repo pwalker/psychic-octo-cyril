@@ -34,10 +34,8 @@ $(function(){
         model: Card,
 
         initialize: function(){
-            // Hooray for debugging
-            console.log("Deck initialized");
-
-            this.listenTo(this, "shuffle", this.shuffle);
+            // if any element of this collection changes its level, we must resort!
+            this.on('change:layer', this.sort, this);
         },
 
         // Tell Backbone.Collection what to do to sort the collection.
@@ -71,6 +69,9 @@ $(function(){
             //
             //  Otherwise a "change" even should suffice
             // this.trigger("change");
+
+            // in case anyone cares
+            this.trigger("shuffle");
         }
     });
     // Create the initial piles.
@@ -80,10 +81,11 @@ $(function(){
     // --------------
     var CardView = Backbone.View.extend({
 
-        tagName: "li",
+        tagName: "tr",
 
         events: {
-            "dblclick": "draw"
+            "click .draw": "draw",
+            "click .top": "sendToTop"
         },
 
         initialize: function (){
@@ -102,9 +104,6 @@ $(function(){
 
         // maybe move the card to the faceup pile
         draw: function (event){
-            // Debugging
-            console.log('draw '+this.model.get('city'));
-
             // The card becomes visible, and its level reset
             this.model.set({"faceup": true, "level": 0});
 
@@ -112,6 +111,11 @@ $(function(){
             // something with knowledge of the two decks will hear this, and
             // refresh the display accordingly.
             this.model.trigger('draw', this.model);
+        },
+
+        // set layer to 0
+        sendToTop: function (event){
+            this.model.set({"layer": 0});
         }
 
     });
@@ -125,12 +129,9 @@ $(function(){
 
             this.where = opt.where;
 
-            // this is a bit of a cop-out, using the catch all.
-            this.listenTo(this.collection, 'all', this.render);
-
-            // We might hear from a card in this collection that it has been drawn!
-            // if thats true, this is more appropriate place to deal with it.
-            this.listenTo(this.collection, 'draw', this.drawCard);
+            // A deckview is invalidated if the cards are sorted, or if one is drawn
+            this.listenTo(this.collection, 'sort', this.render);
+            this.listenTo(this.collection, 'draw', this.render);
         },
 
         render: function(){
@@ -141,6 +142,7 @@ $(function(){
 
             // render all the layers
             if (typeof this.collection !== "undefined"){
+                // filter our collection, perhaps by faceup/down
                 var models = this.collection.where(this.where);
                 for (var i=0; i < models.length; i++){
                     // render all the cards
@@ -149,14 +151,7 @@ $(function(){
                 }
             }
 
-            // I don't think we need to do much here.
             return this;
-        },
-
-        // Maybe move the given card from the Draw pile to the FaceUp pile.
-        drawCard: function(card){
-            // If a card was drawn, we should refresh the display!
-            this.render();
         },
 
         clear: function(){
@@ -185,7 +180,7 @@ $(function(){
     // TODO move this click and callback into an AppView!
     $("#shuffle-faceup").click(function(){
         // increase all layer #'s in drawpile
-        Draw.trigger("shuffle");
+        Draw.shuffle();
     });
 
     // create some dummy cards!
