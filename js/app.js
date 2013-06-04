@@ -19,9 +19,7 @@ $(function(){
         // we *think* the card is in.
         defaults: {
             city: "Some City",
-            color: "red",
-            layer: 0,
-            faceup: false
+            layer: 1
         }
 
     });
@@ -45,19 +43,12 @@ $(function(){
 
         shuffle: function (){
             this.each(function(card){
-                // To make this explicit, lets prepare the new attributes
-                var newAttrs = {
-                    // the layer number gets incremented unless we were faceup
-                    "layer" : card.get("faceup") === true ? 0 : card.get("layer") + 1,
-                    // In shuffling, everycard in the infect piles gets turned facedown
-                    "faceup" : false
-                };
                 // update the attributes, and since we are iterating over the
                 // entire collection, lets wait to trigger an event until we
                 // are finished.
-                card.set(newAttrs, {silent: true});
+                card.set({"layer": card.get("layer")+1 }, {silent: true});
             }, this);
-            
+
             // Our new layer and faceup values might have changed the order, let's
             // ensure its correct.
             this.sort();
@@ -75,7 +66,7 @@ $(function(){
         }
     });
     // Create the initial piles.
-    var Draw = new Cards();
+    var Pile = new Cards();
 
     // Display a Card
     // --------------
@@ -84,8 +75,7 @@ $(function(){
         tagName: "tr",
 
         events: {
-            "click .draw": "draw",
-            "click .top": "sendToTop"
+            "click .draw": "draw"
         },
 
         initialize: function (){
@@ -105,17 +95,12 @@ $(function(){
         // maybe move the card to the faceup pile
         draw: function (event){
             // The card becomes visible, and its level reset
-            this.model.set({"faceup": true, "level": 0});
+            this.model.set({"layer": 0});
 
             // Lets just rethrow this event, but pass along the model.  Hopefully
             // something with knowledge of the two decks will hear this, and
             // refresh the display accordingly.
             this.model.trigger('draw', this.model);
-        },
-
-        // set layer to 0
-        sendToTop: function (event){
-            this.model.set({"layer": 0});
         }
 
     });
@@ -125,10 +110,6 @@ $(function(){
     var DeckView = Backbone.View.extend({
 
         initialize: function (opt){
-            console.log("DeckView initialized.");
-
-            this.where = opt.where;
-
             // A deckview is invalidated if the cards are sorted, or if one is drawn
             this.listenTo(this.collection, 'sort', this.render);
             this.listenTo(this.collection, 'draw', this.render);
@@ -142,13 +123,11 @@ $(function(){
 
             // render all the layers
             if (typeof this.collection !== "undefined"){
-                // filter our collection, perhaps by faceup/down
-                var models = this.collection.where(this.where);
-                for (var i=0; i < models.length; i++){
+                this.collection.each(function(card){
                     // render all the cards
-                    var view = new CardView({model: models[i]});
+                    var view = new CardView({model: card});
                     this.$el.append(view.render().el);
-                }
+                }, this);
             }
 
             return this;
@@ -156,38 +135,40 @@ $(function(){
 
         clear: function(){
             this.$el.html("");
-        },
-
-        where: {}
+        }
 
     });
 
+    var AppView = Backbone.View.extend({
+        el: $("#deck-memory"),
+
+        events: {
+            "click .shuffle": "shuffle"
+        },
+
+        initialize: function (){
+            var DeckTable = new DeckView({
+                el: $("#deck"),
+                collection: Pile
+            });
+        },
+
+        shuffle: function () {
+            console.log("shuffling");
+            Pile.shuffle();
+        }
+
+    });
 
     // Kick it off
     // -----------
-    var app = {};
-    app.DrawView = new DeckView({
-        el: $("#draw-pile"),
-        collection: Draw,
-        where: {"faceup": false}
-    });
-    app.FaceUpView = new DeckView({
-        el: $("#faceup-pile"),
-        collection: Draw,
-        where: {"faceup": true}
-    });
-
-    // TODO move this click and callback into an AppView!
-    $("#shuffle-faceup").click(function(){
-        // increase all layer #'s in drawpile
-        Draw.shuffle();
-    });
+    var DeckMemory = new AppView();
 
     // create some dummy cards!
     var cities = ["Los Angeles", "San Francisco", "Shanghai", "Beijing", "Atlanta", "New York", "Chicago", "London", "Paris", "Sydney", "Tehran", "Bolgota", "Hong Kong", "Tokyo", "Lima", "Johannesburg", "Cairo", "St. Petersburg"];
     for (var i=0; i < cities.length; i++){
         var newCard = new Card({"city": cities[i]});
-        Draw.add(newCard);
+        Pile.add(newCard);
     }
 
 });
