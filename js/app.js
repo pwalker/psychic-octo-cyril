@@ -19,25 +19,25 @@ $(function(){
         // we *think* the card is in.
         defaults: {
             city: "Some City",
-            layer: 0
+            color: "red",
+            layer: 0,
+            faceup: false
         }
 
     });
 
     // A Collection of Cards
     // ---------------------
-    var Pile = Backbone.Collection.extend({
+    var Cards = Backbone.Collection.extend({
 
         // Tell the collection what model we are using
         model: Card,
 
-        // This is specific to the backbone.localStorage.js.
-        // TODO how would you specify a real backend?
-        localStorage: new Backbone.LocalStorage("stacks"),
-
         initialize: function(){
             // Hooray for debugging
             console.log("Deck initialized");
+
+            this.listenTo(this, "shuffle", this.shuffle);
         },
 
         // Tell Backbone.Collection what to do to sort the collection.
@@ -46,14 +46,35 @@ $(function(){
         comparator: "layer",
 
         shuffle: function (){
-            // put all cards in layer 0 into layer 1
+            this.each(function(card){
+                // To make this explicit, lets prepare the new attributes
+                var newAttrs = {
+                    // the layer number gets incremented unless we were faceup
+                    "layer" : card.get("faceup") === true ? 0 : card.get("layer") + 1,
+                    // In shuffling, everycard in the infect piles gets turned facedown
+                    "faceup" : false
+                };
+                // update the attributes, and since we are iterating over the
+                // entire collection, lets wait to trigger an event until we
+                // are finished.
+                card.set(newAttrs, {silent: true});
+            }, this);
+            
+            // Our new layer and faceup values might have changed the order, let's
+            // ensure its correct.
+            this.sort();
 
+            // Since we did some bulk work, and suppressed all events when updating,
+            // we should still trigger something.  Luckily for us, the sort() method
+            // fires off a "sort" event, which gets caught in the CardView's
+            // "all" handler.
+            //
+            //  Otherwise a "change" even should suffice
+            // this.trigger("change");
         }
-
     });
     // Create the initial piles.
-    var Draw = new Pile();
-    var FaceUp = new Pile();
+    var Draw = new Cards();
 
     // Display a Card
     // --------------
@@ -83,9 +104,13 @@ $(function(){
         draw: function (event){
             // Debugging
             console.log('draw '+this.model.get('city'));
+
+            // The card becomes visible, and its level reset
+            this.model.set({"faceup": true, "level": 0});
+
             // Lets just rethrow this event, but pass along the model.  Hopefully
             // something with knowledge of the two decks will hear this, and
-            // move the card accordingly.
+            // refresh the display accordingly.
             this.model.trigger('draw', this.model);
         }
 
@@ -95,8 +120,10 @@ $(function(){
     // -----------------------------
     var DeckView = Backbone.View.extend({
 
-        initialize: function (){
+        initialize: function (opt){
             console.log("DeckView initialized.");
+
+            this.where = opt.where;
 
             // this is a bit of a cop-out, using the catch all.
             this.listenTo(this.collection, 'all', this.render);
@@ -104,9 +131,6 @@ $(function(){
             // We might hear from a card in this collection that it has been drawn!
             // if thats true, this is more appropriate place to deal with it.
             this.listenTo(this.collection, 'draw', this.drawCard);
-
-            // load the saved deck
-            //Deck.fetch();
         },
 
         render: function(){
@@ -117,11 +141,12 @@ $(function(){
 
             // render all the layers
             if (typeof this.collection !== "undefined"){
-                this.collection.each(function(card){
+                var models = this.collection.where(this.where);
+                for (var i=0; i < models.length; i++){
                     // render all the cards
-                    var view = new CardView({model: card});
+                    var view = new CardView({model: models[i]});
                     this.$el.append(view.render().el);
-                }, this);
+                }
             }
 
             // I don't think we need to do much here.
@@ -130,23 +155,15 @@ $(function(){
 
         // Maybe move the given card from the Draw pile to the FaceUp pile.
         drawCard: function(card){
-            // "Drawing" only goes one way, from the Draw pile to the FaceUp pile
-            if (Draw.contains(card)){
-                // Follow along in the console
-                console.log('drawing '+card.get("city"));
-
-                // The Layer isn't important in the FaceUp pile.
-                card.set({"layer": 0});
-
-                // Perform the move.
-                FaceUp.add(card);
-                Draw.remove(card);
-            }
+            // If a card was drawn, we should refresh the display!
+            this.render();
         },
 
         clear: function(){
             this.$el.html("");
-        }
+        },
+
+        where: {}
 
     });
 
@@ -156,25 +173,19 @@ $(function(){
     var app = {};
     app.DrawView = new DeckView({
         el: $("#draw-pile"),
-        collection: Draw
+        collection: Draw,
+        where: {"faceup": false}
     });
     app.FaceUpView = new DeckView({
         el: $("#faceup-pile"),
-        collection: FaceUp
+        collection: Draw,
+        where: {"faceup": true}
     });
 
     // TODO move this click and callback into an AppView!
     $("#shuffle-faceup").click(function(){
         // increase all layer #'s in drawpile
-        Draw.each(function(model){
-            model.set({ "layer": model.get("layer")+1 });
-        });
-
-        // move everything in faceup to draw
-        while (FaceUp.size() > 0){
-            Draw.add(FaceUp.pop());
-        }
-        
+        Draw.trigger("shuffle");
     });
 
     // create some dummy cards!
